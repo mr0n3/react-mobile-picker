@@ -6,6 +6,8 @@ class PickerColumn extends Component {
     options: PropTypes.array.isRequired,
     name: PropTypes.string.isRequired,
     value: PropTypes.any.isRequired,
+    keyField: PropTypes.string.isRequired,
+    labelField: PropTypes.string.isRequired,
     itemHeight: PropTypes.number.isRequired,
     columnHeight: PropTypes.number.isRequired,
     onChange: PropTypes.func.isRequired
@@ -29,8 +31,13 @@ class PickerColumn extends Component {
   }
 
   computeTranslate = (props) => {
-    const {options, value, itemHeight, columnHeight} = props;
-    let selectedIndex = options.indexOf(value);
+    const {options, value, itemHeight, columnHeight, keyField} = props;
+    let selectedIndex = -1;
+    options.forEach((option, idx)=>{
+      if(option[keyField]==value[keyField]) {
+        selectedIndex = idx;
+      }
+    });
     if (selectedIndex < 0) {
       // throw new ReferenceError();
       console.warn('Warning: "' + this.props.name+ '" doesn\'t contain an option of "' + value + '".');
@@ -121,19 +128,19 @@ class PickerColumn extends Component {
   };
 
   renderItems() {
-    const {options, itemHeight, value} = this.props;
+    const {options, itemHeight, value, labelField, keyField} = this.props;
     return options.map((option, index) => {
       const style = {
         height: itemHeight + 'px',
         lineHeight: itemHeight + 'px'
       };
-      const className = `picker-item${option === value ? ' picker-item-selected' : ''}`;
+      const className = `picker-item${option[keyField] === value[keyField] ? ' picker-item-selected' : ''}`;
       return (
         <div
           key={index}
           className={className}
           style={style}
-          onClick={() => this.handleItemClick(option)}>{option}</div>
+          onClick={() => this.handleItemClick(option)}>{option[labelField]}</div>
       );
     });
   }
@@ -170,6 +177,8 @@ export default class Picker extends Component {
   static propTyps = {
     optionGroups: PropTypes.object.isRequired,
     valueGroups: PropTypes.object.isRequired,
+    keyField: PropTypes.string.isRequired,
+    labelField: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     itemHeight: PropTypes.number,
     height: PropTypes.number
@@ -181,7 +190,7 @@ export default class Picker extends Component {
   };
 
   renderInner() {
-    const {optionGroups, valueGroups, itemHeight, height, onChange} = this.props;
+    const {optionGroups, valueGroups, itemHeight, height, onChange, keyField, labelField} = this.props;
     const highlightStyle = {
       height: itemHeight,
       marginTop: -(itemHeight / 2)
@@ -194,6 +203,8 @@ export default class Picker extends Component {
           name={name}
           options={optionGroups[name]}
           value={valueGroups[name]}
+          keyField={keyField}
+          labelField={labelField}
           itemHeight={itemHeight}
           columnHeight={height}
           onChange={onChange} />

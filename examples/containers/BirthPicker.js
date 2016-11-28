@@ -4,7 +4,7 @@ import Picker from 'react-mobile-picker';
 function generateNumberArray(begin, end) {
   let array = [];
   for (let i = begin; i <= end; i++) {
-    array.push((i < 10 ? '0' : '') + i);
+    array.push({value: (i < 10 ? '0' : '') + i  });
   }
   return array;
 }
@@ -15,9 +15,9 @@ export default class BirthPicker extends Component {
     this.state = {
       isPickerShow: false,
       valueGroups: {
-        year: '1989',
-        month: '08',
-        day: '12'
+        year: {value: '1989'},
+        month: {value: '08'},
+        day: {value: '12'}
       },
       optionGroups: {
         year: generateNumberArray(1970, 2015),
@@ -27,16 +27,16 @@ export default class BirthPicker extends Component {
     };
   }
 
-  handleChange = (name, value) => {
+  handleChange = (name, selected) => {
     this.setState(({valueGroups, optionGroups}) => {
       const nextState = {
         valueGroups: {
           ...valueGroups,
-          [name]: value
+          [name]: selected
         }
       };
-      if (name === 'year' && valueGroups.month === '02') {
-        if (parseInt(value) % 4 === 0) {
+      if (name === 'year' && valueGroups.month.value === '02') {
+        if (parseInt(selected) % 4 === 0) {
           nextState.optionGroups = {
             ...optionGroups,
             day: generateNumberArray(1, 29)
@@ -48,18 +48,18 @@ export default class BirthPicker extends Component {
           };
         }
       } else if (name === 'month') {
-        if (value === '02') {
+        if (selected === '02') {
           nextState.optionGroups = {
             ...optionGroups,
             day: generateNumberArray(1, 28)
           };
-        } else if (['01', '03', '05', '07', '08', '10', '12'].indexOf(value) > -1 &&
+        } else if (['01', '03', '05', '07', '08', '10', '12'].indexOf(selected.value) > -1 &&
           ['01', '03', '05', '07', '08', '10', '12'].indexOf(valueGroups.month) < 0) {
           nextState.optionGroups = {
             ...optionGroups,
             day: generateNumberArray(1, 31)
           };
-        } else if (['01', '03', '05', '07', '08', '10', '12'].indexOf(value) < 0 &&
+        } else if (['01', '03', '05', '07', '08', '10', '12'].indexOf(selected.value) < 0 &&
           ['01', '03', '05', '07', '08', '10', '12'].indexOf(valueGroups.month) > -1) {
           nextState.optionGroups = {
             ...optionGroups,
@@ -94,7 +94,7 @@ export default class BirthPicker extends Component {
               <input
                 type="text"
                 className="weui_select"
-                value={valueGroups.year + '-' + valueGroups.month + '-' + valueGroups.day}
+                value={valueGroups.year.value + '/' + valueGroups.month.value + '/' + valueGroups.day.value}
                 readOnly
                 onClick={this.togglePicker} />
             </div>
@@ -110,6 +110,8 @@ export default class BirthPicker extends Component {
             <Picker
              optionGroups={optionGroups}
              valueGroups={valueGroups}
+             keyField="value"
+             labelField="value"
              onChange={this.handleChange} />
           </div>
         </div>
